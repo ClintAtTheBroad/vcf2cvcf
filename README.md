@@ -1,5 +1,9 @@
 # Running Foghorn to Compress VCFs to CVCFs
 
+## Requirements
+
+ * This needs to be run on a Broad machine, since it uses dotkits.
+
 ## Usage
 `run-foghorn --input foo.vcf --output bar.cvcf`
 
