@@ -1,0 +1,40 @@
+#!/usr/bin/env perl
+
+use strict;
+use Getopt::Long;
+
+my $inputVcf;
+my $outputCvcf;
+
+my $usage = "Usage: run-foghorn --input <input vcf> --output <output cvcf>\n";
+
+GetOptions('input|i=s' => \$inputVcf, 'output|o=s' => \$outputCvcf) or die($usage);
+
+if(!$inputVcf || !$outputCvcf) {
+  die($usage);
+}
+
+my $outputTbi = "$outputCvcf.tbi";
+
+my $foghornExe = "./broad-foghorn.sh";
+
+my $foghornCmd = "$foghornExe -l error -f DOS -s 0 -t vnc -i $inputVcf -o /dev/stdout";
+
+my $bgzippedFile = $outputCvcf;
+
+my $bgzipCmd = "bgzip > $bgzippedFile";
+
+my $tabixCmd = "tabix -s 1 -b 2 -e 2 -c \"#\" $bgzippedFile && tabix -H $bgzippedFile";
+
+print "$foghornCmd | $bgzipCmd\n";
+
+`$foghornCmd | $bgzipCmd`;
+
+die("Foghorn or bgzip failed") if $?;
+
+print "$tabixCmd\n";
+
+`$tabixCmd`;
+
+die("Tabix failed") if $?;
+
